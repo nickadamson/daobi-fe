@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    // nextjs
+    "target": "ES2016",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    // other
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "declaration": true,
+    "declarationDir": "src/types/",
+    "emitDeclarationOnly": true,
+    "incremental": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "paths": {
+      "@/components/*": ["src/common/components/*"],
+      "@/hooks/*": ["src/common/hooks/*"],
+      "@/ethereum/*": ["src/ethereum/*"],
+      "@/pages/*": ["src/pages/*"],
+      "@/styles/*": ["src/styles/*"],
+      "@/types/*": ["src/types/*"],
+      "@/utils/*": ["src/utils/*"]
+    },
+    "preserveConstEnums": true,
+    "removeComments": false
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": [
+    ".github",
+    ".next",
+    ".husky",
+    ".vscode",
+    "node_modules",
+    "src/types/**/*.*"
+  ]
+}
