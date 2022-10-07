@@ -5,20 +5,21 @@ import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 
-export const { chains, provider } = configureChains(
+export const { chains, provider, webSocketProvider } = configureChains(
   [chain.polygonMumbai],
   [publicProvider()]
 );
 
 export const wagmiClient = createClient({
   provider,
+  webSocketProvider,
   autoConnect: true,
   connectors: [
     new MetaMaskConnector({ chains }),
     new CoinbaseWalletConnector({
       chains,
       options: {
-        appName: "wagmi",
+        appName: "DAObi",
       },
     }),
     new WalletConnectConnector({
@@ -27,6 +28,12 @@ export const wagmiClient = createClient({
         qrcode: true,
       },
     }),
-    new InjectedConnector({ chains }),
+    new InjectedConnector({
+      chains,
+      options: {
+        name: "Other (Injected)",
+        shimDisconnect: true,
+      },
+    }),
   ],
 });
