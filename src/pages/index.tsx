@@ -4,12 +4,13 @@ import Contract from "@/components/Contract";
 import { useState } from "react";
 
 const Home: NextPage = () => {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(0); // contract nav
 
   return (
     <div className="w-full h-full">
       <p className="mx-auto w-1/2 text-center">Select Contract</p>
       <div className="flex justify-around mx-auto my-4 w-1/2">
+        {/* Tab Selection */}
         {DAOBI_CONTRACTS.map((contract, idx) => {
           return (
             <button
@@ -22,7 +23,7 @@ const Home: NextPage = () => {
           );
         })}
       </div>
-      {/* for each abi show contract component */}
+      {/* Function Grid */}
       {DAOBI_CONTRACTS.map((contract, idx) => {
         return (
           <div

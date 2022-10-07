@@ -19,6 +19,7 @@ const Input = ({ input, value, idx, formData, setFormData }: Props) => {
     setFormData(() => [...newData]);
   };
 
+  // field for each input based on type
   const renderInput = () => {
     switch (input.type) {
       case "address":

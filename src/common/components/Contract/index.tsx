@@ -16,7 +16,6 @@ const Contract = ({ name, address, ABI }: Props) => {
   );
 
   const { isConnected, connector } = useAccount();
-  console.log(connector);
 
   return (
     <div className="w-full h-full">

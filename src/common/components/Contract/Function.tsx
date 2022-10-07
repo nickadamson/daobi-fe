@@ -7,8 +7,8 @@ import {
   usePrepareContractWrite,
 } from "wagmi";
 import { useEffect, useState } from "react";
-import { BigNumber, BigNumberish } from "ethers";
-import { toTrimmedAddress } from "@/utils/index";
+import { BigNumber, BigNumberish, ethers } from "ethers";
+import { formatIODefaultValues, toTrimmedAddress } from "@/utils/index";
 
 interface Props {
   name: string;
@@ -28,13 +28,17 @@ const Function = ({
   contractAddress,
 }: Props) => {
   const { address } = useAccount();
+
   // useState for all input values
   const [formData, setFormData] = useState(
     formatIODefaultValues(inputs, address) // .sol types -> .js types
   );
-  const [txWillError, setTxWillError] = useState(true);
+  const [txWillError, setTxWillError] = useState(true); // block transactions until ethers can estimate gas
+  const [errorMsg, setErrorMsg] = useState<null | string | Error>(
+    "Tx will likely fail... Make sure you have proper permissions, enough money for gas, etc."
+  );
 
-  // read
+  // FOR READ FUNCTIONS
   const {
     data: viewData,
     isSuccess: viewIsSuccess,
@@ -54,15 +58,23 @@ const Function = ({
             return input.value;
           })
         : undefined,
-    onSuccess(data) {
-      if (name === "CHANCELLOR_ROLE") console.log(typeof data, data);
-    },
-    onError(data) {
-      if (name === "CHANCELLOR_ROLE") console.log(typeof data, data);
+    onError(error: any) {
+      console.log("error", JSON.parse(JSON.stringify(error, null, 2)));
+      setErrorMsg(
+        JSON.stringify(
+          (error?.reason ?? "") +
+            " - " +
+            (error?.error?.message ?? "") +
+            " - " +
+            (error?.code ?? "") +
+            " - " +
+            (error?.argument ?? "")
+        )
+      );
     },
   });
 
-  // write
+  // FOR WRITE FUNCTIONS
   const { config, refetch } = usePrepareContractWrite({
     addressOrName: contractAddress,
     contractInterface: contractABI,
@@ -77,29 +89,43 @@ const Function = ({
     onSuccess() {
       setTxWillError(false);
     },
-    onError() {
-      //   console.log("Error", error);
+    onError(error: any) {
+      console.log("Error: ", JSON.stringify(error));
       setTxWillError(true);
+      setErrorMsg(
+        JSON.stringify(
+          (error?.reason ?? "") +
+            " - " +
+            (error?.error?.message ?? "") +
+            " - " +
+            (error?.code ?? "") +
+            " - " +
+            (error?.argument ?? "")
+        )
+      );
     },
   });
 
+  // TODO: implement notification of Tx status
   const { data, isLoading, isSuccess, write } = useContractWrite(config);
-
-  //   const [skipFetch, setSkipFetch] = useState(true);
-
-  useEffect(() => {
-    // if (skipFetch) setSkipFetch(false);
-    // else if (!skipFetch) {
-    refetch();
-    viewRefetch();
-    // }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData]);
 
   const formattedViewData =
     typeof viewData !== "object"
       ? viewData
       : (viewData as BigNumberish)?.toString();
+
+  // re-estimate when values change
+  useEffect(() => {
+    function refreshEstimates() {
+      if (stateMutability === "view") {
+        refetch();
+      } else {
+        viewRefetch();
+      }
+    }
+    refreshEstimates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData]);
 
   return (
     <div className="flex flex-col justify-between p-4 m-auto w-full h-full border-2">
@@ -107,6 +133,7 @@ const Function = ({
       {stateMutability === "view" && (
         <div>
           <br />
+          {/* TODO: add visual indication of query status */}
           Value{`(${outputs[0].type})`}:{viewIsLoading && <p>spinner</p>}
           {viewIsError && <p>error</p>}
           {viewIsSuccess && (
@@ -137,21 +164,19 @@ const Function = ({
       <div className="flex flex-row justify-between w-full">
         <>
           {txWillError && (
-            <p className="p-2">
-              Tx will likely fail... Make sure you have proper permissions,
-              enough money for gas, etc.
+            <p className="overflow-auto p-2 mr-2 border">
+              {errorMsg && "ERROR: " + errorMsg}
             </p>
           )}
         </>
         <button
-          className={`ml-auto mr-0 border-2 p-2 ${
+          className={`p-2 mt-auto mr-0 mb-0 ml-auto border-2 h-min ${
             txWillError ? "border-red-400" : "border-green-400"
           }`}
           onClick={async (e) => {
             e.preventDefault();
             if (stateMutability === "view") {
-              const result = await viewRefetch();
-              console.log(result);
+              viewRefetch();
             } else {
               write?.();
             }
