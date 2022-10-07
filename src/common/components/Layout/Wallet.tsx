@@ -12,15 +12,20 @@ const Wallet = (): JSX.Element => {
       <div>
         {/* <img src={accountData.ens?.avatar} alt="ENS Avatar" /> */}
         <div>{/*ensName ? ensName :*/ address}</div>
-        {/* <div>Connected to {accountData.connector.name}</div> */}
-        <button onClick={() => disconnect}>Disconnect</button>
+        <div>Connected to {connector.name}</div>
+        <button onClick={() => disconnect?.()}>Disconnect</button>
       </div>
     );
   } else {
     return (
-      <div>
+      <div className="gap-2">
         {connectors.map((x) => (
-          <button disabled={!x.ready} key={x.id} onClick={() => x.connect()}>
+          <button
+            className="p-2 text-xs border"
+            disabled={!x.ready}
+            key={x.id}
+            onClick={() => x.connect()}
+          >
             {x.name}
             {!x.ready && " (unsupported)"}
           </button>
