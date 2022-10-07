@@ -33,6 +33,7 @@ const Function = ({
   const [formData, setFormData] = useState(
     formatIODefaultValues(inputs, address) // .sol types -> .js types
   );
+  const [msgValue, setMsgValue] = useState(0); // for payable functions
   const [txWillError, setTxWillError] = useState(true); // block transactions until ethers can estimate gas
   const [errorMsg, setErrorMsg] = useState<null | string | Error>(
     "Tx will likely fail... Make sure you have proper permissions, enough money for gas, etc."
@@ -85,7 +86,9 @@ const Function = ({
       }
       return input.value;
     }),
-    // enabled: false,
+    overrides: {
+      value: ethers.utils.parseEther(msgValue.toString()),
+    },
     onSuccess() {
       setTxWillError(false);
     },
@@ -156,9 +159,22 @@ const Function = ({
             idx={idx}
             formData={formData}
             setFormData={setFormData}
+            isMsgValue={false}
           />
         ))}
 
+        {/* field for payable function */}
+        {stateMutability === "payable" && (
+          <Input
+            key={`${msgValue}-${contractAddress}-${name}`}
+            input={{ name: "msgValue", type: "uint256" }}
+            value={msgValue}
+            idx={0}
+            formData={msgValue}
+            setFormData={setMsgValue}
+            isMsgValue={true}
+          />
+        )}
         <br />
       </form>
       <div className="flex flex-row justify-between w-full">

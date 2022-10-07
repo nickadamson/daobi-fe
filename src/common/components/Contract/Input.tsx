@@ -4,19 +4,30 @@ interface Props {
   input: JsonFragmentType;
   value: any;
   idx: number;
-  formData: any[];
-  setFormData: Dispatch<SetStateAction<any[]>>;
+  formData: any[] | number;
+  setFormData: Dispatch<SetStateAction<any[] | number>>;
+  isMsgValue: boolean;
 }
 
 const inputStyle =
   "w-full p-2 rounded border-2 border-black-900 focus:outline-1 focus:outline-blue-400";
 
-const Input = ({ input, value, idx, formData, setFormData }: Props) => {
+const Input = ({
+  input,
+  value,
+  idx,
+  formData,
+  setFormData,
+  isMsgValue,
+}: Props) => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log({ e });
-    let newData = formData;
-    newData[idx].value = e.currentTarget.value;
-    setFormData(() => [...newData]);
+    if (!isMsgValue) {
+      let newData = formData;
+      newData[idx].value = e.currentTarget.value;
+      setFormData(() => [...(newData as any[])]);
+    } else {
+      setFormData(() => Number(e.currentTarget.value));
+    }
   };
 
   // field for each input based on type
@@ -73,8 +84,11 @@ const Input = ({ input, value, idx, formData, setFormData }: Props) => {
     <div className="flex flex-col">
       <label>
         {`${input.name}(${input.type}):`}
-        {/* field for each input based on type */}
-        <br />
+        {input.type.includes("int") && (
+          <p className="italic">
+            Note: Will be converted to Wei; 1 = 1 ETH = 10^18 WEI
+          </p>
+        )}
         {renderInput()}
         <br />
       </label>
