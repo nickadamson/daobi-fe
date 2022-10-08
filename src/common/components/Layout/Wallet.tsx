@@ -30,20 +30,22 @@ const Wallet = (): JSX.Element => {
   } else {
     return (
       <div className="gap-2">
-        {connectors.map((connector) => (
-          <button
-            className="p-2 text-xs border"
-            disabled={!connector.ready}
-            key={connector.id}
-            onClick={() => connect({ connector })}
-          >
-            {connector.name}
-            {!connector.ready && " (unsupported)"}
-            {isLoading &&
-              connector.id === pendingConnector?.id &&
-              " (connecting)"}
-          </button>
-        ))}
+        {connectors.map((connector) => {
+          return (
+            <button
+              className="p-2 text-xs border"
+              // disabled={!connector.ready}
+              key={connector.id}
+              onClick={() => connect({ connector })}
+            >
+              {connector.name}
+              {!connector.ready && " (unsupported)"}
+              {isLoading &&
+                connector.id === pendingConnector?.id &&
+                " (connecting)"}
+            </button>
+          );
+        })}
 
         {error && <div>{error?.message ?? "Failed to connect"}</div>}
       </div>
