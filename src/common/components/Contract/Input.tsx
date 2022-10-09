@@ -74,7 +74,7 @@ const Input = ({
             />
           );
         } else {
-          console.log(`Unknown Type: ${JSON.stringify(input)}`);
+          // console.log(`Unknown Type: ${JSON.stringify(input)}`);
           return <p>Error, UnknownType</p>;
         }
     }

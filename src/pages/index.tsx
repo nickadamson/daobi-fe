@@ -30,11 +30,7 @@ const Home: NextPage = () => {
             key={contract.name}
             className={`${activeTab === idx ? "" : "hidden"}`}
           >
-            <Contract
-              name={contract.name}
-              address={contract.address}
-              ABI={contract.ABI}
-            />
+            <Contract {...contract} />
           </div>
         );
       })}

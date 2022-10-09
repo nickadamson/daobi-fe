@@ -1,21 +1,31 @@
+import { DAOBI_CONTRACT } from "@/ethereum/abis";
+import useRoles from "@/hooks/useRoles";
 import { toTrimmedAddress } from "@/utils/index";
 import { JsonFragment, JsonFragmentType } from "@ethersproject/abi";
 import { useAccount } from "wagmi";
 import Function from "./Function";
 
-interface Props {
-  name: string;
-  address: string;
-  ABI: JsonFragment[];
-}
+const chancellorOnlyMethods = ["claimChancellorSalary", "recoverSeal", "mint"];
 
-const Contract = ({ name, address, ABI }: Props) => {
+const Contract = ({ name, address, ABI, visibleMethods }: DAOBI_CONTRACT) => {
+  const { address: userAddress, isConnected, connector } = useAccount();
+  const { isChancellor } = useRoles(userAddress);
+
   // get functions from abi
-  const contractFunctions = ABI.filter(
+  const allContractFunctions = ABI.filter(
     (method) => method.type === "function" && method?.name
   );
 
-  const { isConnected, connector } = useAccount();
+  const callableContractFunctions = allContractFunctions.filter((method) => {
+    // filter out important functions
+    if (visibleMethods.includes(method.name)) {
+      // if function requires being Chancellor...
+      if (chancellorOnlyMethods.includes(method.name)) {
+        // only show to Chancellor
+        if (isChancellor) return method;
+      } else return method;
+    }
+  });
 
   return (
     <div className="w-full h-full">
@@ -31,10 +41,10 @@ const Contract = ({ name, address, ABI }: Props) => {
         <br />
       </div>
       {/* show each function if acct is connected  */}
-      <div className="grid grid-cols-2 gap-2 mx-auto xl:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2 mx-4 xl:grid-cols-3">
         {isConnected &&
           connector &&
-          contractFunctions.map((func, idx) => {
+          callableContractFunctions.map((func, idx) => {
             return (
               <Function
                 key={`${func?.name}-${address}-${idx}`}
